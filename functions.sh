@@ -6,8 +6,14 @@ fi
 
 set -eu -o pipefail
 
-DOCKER_PLATFORM_FLAG=""
+
+APPLE_SILICON=false
 if [[ $(uname -m) == 'arm64' ]]; then
+  APPLE_SILICON=true
+fi
+
+DOCKER_PLATFORM_FLAG=""
+if [[ $APPLE_SILICON ]]; then
   DOCKER_PLATFORM_FLAG="--platform linux/amd64 "
 fi
 
@@ -17,7 +23,7 @@ if [ -t 0 ]; then
 fi
 
 function docker-run () {
-  if [ "${TTY}" ]; then
+  if [[ $TTY ]]; then
     # shellcheck disable=SC2086
     docker run --init --rm -it -e HOST_USER_ID="$(id -u)" -e HOST_GROUP_ID="$(id -g)" $DOCKER_PLATFORM_FLAG "$@"
   else
